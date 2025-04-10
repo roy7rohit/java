@@ -1,47 +1,52 @@
-import java.util.*;
-public class BloomFilter2 {
-    private int size;
-    private int[] countArray;
-    private int[] hashSeeds;
+package com.bloomFilters.basic;
 
-    public BloomFilter2(int size, int[] hashSeeds) {
+import java.util.*;
+
+public class BloomFilter1 
+{
+
+    private int size;
+    private BitSet bitSet;
+    private int[] hashSeeds;
+    
+    public BloomFilter1(int size, int[] hashSeeds){
         this.size = size;
-        this.countArray = new int[size];
         this.hashSeeds = hashSeeds;
+        this.bitSet = new BitSet(size);
     }
 
-    private int hash(String item, int seed){
+    // Basic hash function using different seeds
+    private int getHash(String item, int seed){
         int hash = 0;
         for(char c : item.toCharArray()){
             hash = hash * seed + c;
         }
+
         return Math.abs(hash % size);
     }
 
+    // add an item to the filter
     public void add(String item){
         for(int seed: hashSeeds){
-            int index = hash(item, seed);
-            countArray[index]++;
+            int index = getHash(item, seed);
+            bitSet.set(index);
         }
     }
 
+    // check if an item is in the filter
     public boolean contains(String item){
         for(int seed: hashSeeds){
-            int index = hash(item, seed);
-            if(countArray[index]){
+            int index = getHash(item, seed);
+            if(!bitSet.get(index)){
                 return false;
             }
         }
         return true;
     }
 
-    public void remove(String item){
-        if(!contains(item)) return;
-        for(int seed: hashSeeds){
-            int index = hash(item, seed);
-            if(countArray[index] > 0){
-                countArray[index]--;
-            }
+    public void displayBitset(){
+        for(int i = 0; i < size; i++){
+            System.out.println(bitSet.get(i) ? "might contain ::: " + 1 : "does not contain ::: " + 0);
         }
     }
     public static void main( String[] args )
@@ -52,9 +57,9 @@ public class BloomFilter2 {
         for(String d: data){
             bloomFilter.add(d);
         }
-
+       bloomFilter.displayBitset();
         // check items
         System.out.println("Might Contain 'rohit'? " + bloomFilter.contains("rohit"));
-        System.out.println("Might Contain 'tushar'? " + bloomFilter.contains("tushar"));
+         System.out.println("Might Contain 'tushar'? " + bloomFilter.contains("tushar"));
     }
 }
